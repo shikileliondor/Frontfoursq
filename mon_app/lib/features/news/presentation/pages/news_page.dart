@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/presentation/refreshable_scroll_view.dart';
 import '../../data/news_repository.dart';
 import '../../domain/models/news_article.dart';
 import '../widgets/news_article_card.dart';
@@ -7,14 +8,18 @@ import '../widgets/news_category_chip.dart';
 import 'news_detail_page.dart';
 
 class NewsPage extends StatefulWidget {
-  const NewsPage({super.key});
+  const NewsPage({super.key, this.repository});
+
+  /// Injectable pour les tests : sans cela, la page ne peut etre
+  /// exercee qu'au travers d'un vrai appel reseau.
+  final NewsRepository? repository;
 
   @override
   State<NewsPage> createState() => _NewsPageState();
 }
 
 class _NewsPageState extends State<NewsPage> {
-  final NewsRepository _repository = NewsRepository();
+  late final NewsRepository _repository = widget.repository ?? NewsRepository();
   NewsCategory? _selectedCategory;
   NewsArticle? _selectedArticle;
   late Future<List<NewsArticle>> _articlesFuture = _repository.getNews();
@@ -24,6 +29,18 @@ class _NewsPageState extends State<NewsPage> {
       _selectedCategory = category;
       _articlesFuture = _repository.getNews(category: category);
     });
+  }
+
+  /// Recharge sans perdre le filtre en cours : tirer sur « Districts » doit
+  /// rapporter les actualites de district, pas revenir a « Tous ».
+  Future<void> _refresh() async {
+    final future = _repository.getNews(category: _selectedCategory);
+    // Corps de bloc obligatoire : la forme flechee renverrait le Future,
+    // ce que setState refuse.
+    setState(() {
+      _articlesFuture = future;
+    });
+    await future;
   }
 
   @override
@@ -36,7 +53,8 @@ class _NewsPageState extends State<NewsPage> {
       );
     }
 
-    return CustomScrollView(
+    return RefreshableScrollView(
+      onRefresh: _refresh,
       slivers: [
         SliverToBoxAdapter(
           child: Padding(

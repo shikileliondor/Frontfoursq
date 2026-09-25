@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_assets.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key});
+  const HomeHeader({this.onNotificationsTap, super.key});
+
+  final VoidCallback? onNotificationsTap;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +53,7 @@ class HomeHeader extends StatelessWidget {
             children: [
               IconButton(
                 tooltip: 'Notifications',
-                onPressed: () {},
+                onPressed: onNotificationsTap,
                 icon: const Icon(Icons.notifications_none_rounded),
               ),
               Positioned(

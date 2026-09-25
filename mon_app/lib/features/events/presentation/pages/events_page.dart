@@ -1,25 +1,39 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/presentation/refreshable_scroll_view.dart';
 import '../../data/event_repository.dart';
 import '../../domain/models/event.dart';
 import '../widgets/event_image.dart';
 
 class EventsPage extends StatefulWidget {
-  const EventsPage({super.key});
+  const EventsPage({super.key, this.repository});
+
+  /// Injectable pour les tests : sans cela, la page ne peut etre
+  /// exercee qu'au travers d'un vrai appel reseau.
+  final EventRepository? repository;
 
   @override
   State<EventsPage> createState() => _EventsPageState();
 }
 
 class _EventsPageState extends State<EventsPage> {
-  final EventRepository _repository = EventRepository();
-  late final Future<List<Event>> _eventsFuture = _repository
-      .getUpcomingEvents();
+  late final EventRepository _repository =
+      widget.repository ?? EventRepository();
+  late Future<List<Event>> _eventsFuture = _repository.getUpcomingEvents();
+
+  Future<void> _refresh() async {
+    final future = _repository.getUpcomingEvents();
+    setState(() {
+      _eventsFuture = future;
+    });
+    await future;
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return CustomScrollView(
+    return RefreshableScrollView(
+      onRefresh: _refresh,
       slivers: [
         SliverToBoxAdapter(
           child: Padding(

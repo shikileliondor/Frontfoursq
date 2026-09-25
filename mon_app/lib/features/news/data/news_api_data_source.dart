@@ -36,7 +36,7 @@ class NewsApiDataSource {
     return [
       for (var i = 0; i < data.length; i++)
         if (data[i] is Map<String, dynamic>)
-          _articleFromJson(
+          newsArticleFromJson(
             data[i] as Map<String, dynamic>,
             fallback: newsArticles[i % newsArticles.length],
           ),
@@ -44,7 +44,7 @@ class NewsApiDataSource {
   }
 }
 
-NewsArticle _articleFromJson(
+NewsArticle newsArticleFromJson(
   Map<String, dynamic> json, {
   required NewsArticle fallback,
 }) {

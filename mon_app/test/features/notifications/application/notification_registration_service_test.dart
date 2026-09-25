@@ -20,10 +20,12 @@ void main() {
       const DeviceRegistration(
         fcmToken: 'token-123',
         platform: 'android',
+        appVersion: '1.0.0',
         churchId: 'church-1',
-        notificationsEnabled: true,
       ),
     ]);
+
+    await service.dispose();
   });
 
   test('does not register a device when FCM returns no token', () async {
@@ -38,6 +40,8 @@ void main() {
     await service.start();
 
     expect(devices.registrations, isEmpty);
+
+    await service.dispose();
   });
 
   test('registers refreshed FCM tokens after startup', () async {
@@ -61,6 +65,29 @@ void main() {
     await service.dispose();
   });
 
+  test('sends configured app version with registrations', () async {
+    final messaging = FakePushMessagingClient(initialToken: 'token-123');
+    final devices = RecordingDeviceRegistrationClient();
+    final service = NotificationRegistrationService(
+      messaging: messaging,
+      devices: devices,
+      platform: 'android',
+      appVersion: '1.2.3',
+    );
+
+    await service.start();
+
+    expect(devices.registrations, [
+      const DeviceRegistration(
+        fcmToken: 'token-123',
+        platform: 'android',
+        appVersion: '1.2.3',
+      ),
+    ]);
+
+    await service.dispose();
+  });
+
   test('keeps startup alive when device registration fails', () async {
     final messaging = FakePushMessagingClient(initialToken: 'token-123');
     final service = NotificationRegistrationService(
@@ -70,6 +97,8 @@ void main() {
     );
 
     await expectLater(service.start(), completes);
+
+    await service.dispose();
   });
 }
 

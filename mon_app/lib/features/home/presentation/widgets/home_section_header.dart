@@ -4,11 +4,13 @@ class HomeSectionHeader extends StatelessWidget {
   const HomeSectionHeader({
     required this.title,
     this.showAction = true,
+    this.onActionPressed,
     super.key,
   });
 
   final String title;
   final bool showAction;
+  final VoidCallback? onActionPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,7 @@ class HomeSectionHeader extends StatelessWidget {
         ),
         if (showAction)
           TextButton.icon(
-            onPressed: () {},
+            onPressed: onActionPressed,
             iconAlignment: IconAlignment.end,
             icon: const Icon(Icons.chevron_right_rounded, size: 18),
             label: const Text('Voir tout'),

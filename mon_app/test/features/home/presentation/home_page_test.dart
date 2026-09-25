@@ -11,8 +11,8 @@ void main() {
   testWidgets('shows the featured content and news sections', (tester) async {
     await pumpHome(tester);
 
-    expect(find.text("Foursquare CÃ´te d'Ivoire"), findsOneWidget);
-    expect(find.text('AssemblÃ©e GÃ©nÃ©rale Nationale 2025'), findsWidgets);
+    expect(find.text("Foursquare Côte d'Ivoire"), findsOneWidget);
+    expect(find.text('Assemblée Générale Nationale 2025'), findsWidgets);
     expect(find.text('PROCHAIN EVENEMENT'), findsOneWidget);
     expect(find.text('DERNIERES ACTUALITES'), findsOneWidget);
   });
@@ -29,7 +29,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('La jeunesse Foursquare en mission'), findsOneWidget);
-    expect(find.bySemanticsLabel('ActualitÃ© 2 sur 3'), findsOneWidget);
+    expect(find.bySemanticsLabel('Actualité 2 sur 3'), findsOneWidget);
   });
 
   testWidgets('automatically advances featured news', (tester) async {
@@ -47,12 +47,12 @@ void main() {
     await pumpHome(tester);
 
     await tester.scrollUntilVisible(
-      find.text('Trouver une Ã‰glise'),
+      find.text('Trouver une Église'),
       300,
       scrollable: find.byType(Scrollable).first,
     );
 
-    expect(find.text('Trouver une Ã‰glise'), findsOneWidget);
+    expect(find.text('Trouver une Église'), findsOneWidget);
 
     await tester.scrollUntilVisible(
       find.text('PROGRAMMES A VENIR'),
@@ -71,7 +71,7 @@ void main() {
     expect(find.text('Actus'), findsOneWidget);
     expect(find.text('Evenements'), findsOneWidget);
     expect(find.text('Eglises'), findsOneWidget);
-    expect(find.text('Formation'), findsOneWidget);
+    expect(find.text('Formation'), findsNothing);
   });
 
   testWidgets('opens the news tab with category filters', (tester) async {

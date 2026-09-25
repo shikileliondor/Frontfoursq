@@ -58,29 +58,143 @@ class _OnboardingPageState extends State<OnboardingPage> {
         backgroundColor: Colors.white,
         body: Stack(
           children: [
-            Positioned.fill(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: onboardingPages.length,
-                onPageChanged: (page) => setState(() => _currentPage = page),
-                itemBuilder: (context, index) {
-                  return OnboardingSlide(data: onboardingPages[index]);
-                },
-              ),
+            Column(
+              children: [
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: onboardingPages.length,
+                    onPageChanged: (page) =>
+                        setState(() => _currentPage = page),
+                    itemBuilder: (context, index) {
+                      return OnboardingSlide(data: onboardingPages[index]);
+                    },
+                  ),
+                ),
+                DecoratedBox(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0x14000000),
+                        blurRadius: 18,
+                        offset: Offset(0, -6),
+                      ),
+                    ],
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    minimum: const EdgeInsets.fromLTRB(20, 14, 20, 16),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final compact = constraints.maxWidth < 360;
+                        final buttonWidth = _isLastPage
+                            ? (compact ? 148.0 : 168.0)
+                            : (compact ? 132.0 : 146.0);
+
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: OnboardingPageIndicator(
+                                  currentPage: _currentPage,
+                                  pageCount: onboardingPages.length,
+                                  activeColor: theme.colorScheme.secondary,
+                                  inactiveColor: const Color(0xFFD8DCE6),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            SizedBox(
+                              width: buttonWidth,
+                              height: 50,
+                              child: FilledButton(
+                                onPressed: _isCompleting
+                                    ? null
+                                    : (_isLastPage ? _complete : _nextPage),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: theme.colorScheme.secondary,
+                                  foregroundColor: Colors.white,
+                                  disabledBackgroundColor: theme
+                                      .colorScheme
+                                      .secondary
+                                      .withValues(alpha: 0.6),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  elevation: 0,
+                                  textStyle: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0,
+                                  ),
+                                ),
+                                child: _isCompleting && _isLastPage
+                                    ? const SizedBox.square(
+                                        dimension: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              _isLastPage
+                                                  ? 'Commencer'
+                                                  : 'Suivant',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Icon(
+                                            _isLastPage
+                                                ? Icons.check_rounded
+                                                : Icons.arrow_forward_rounded,
+                                            size: 18,
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
             SafeArea(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      width: 48,
-                      height: 48,
-                      padding: const EdgeInsets.all(4),
+                      width: 52,
+                      height: 52,
+                      padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.92),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFFE8EAF0)),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x18000000),
+                            blurRadius: 16,
+                            offset: Offset(0, 8),
+                          ),
+                        ],
                       ),
                       child: Image.asset(
                         AppAssets.logo,
@@ -93,61 +207,24 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         onPressed: _isCompleting ? null : _complete,
                         style: TextButton.styleFrom(
                           foregroundColor: theme.colorScheme.primary,
-                          backgroundColor: Colors.white.withValues(alpha: 0.92),
+                          backgroundColor: Colors.white,
                           minimumSize: const Size(72, 42),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          side: const BorderSide(color: Color(0xFFE8EAF0)),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text('Passer'),
+                        child: const Text(
+                          'Passer',
+                          style: TextStyle(fontWeight: FontWeight.w800),
+                        ),
                       ),
                   ],
                 ),
               ),
             ),
           ],
-        ),
-        bottomNavigationBar: SafeArea(
-          minimum: const EdgeInsets.fromLTRB(24, 8, 24, 18),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              OnboardingPageIndicator(
-                currentPage: _currentPage,
-                pageCount: onboardingPages.length,
-                activeColor: theme.colorScheme.secondary,
-                inactiveColor: const Color(0xFFD8DCE6),
-              ),
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: FilledButton(
-                  onPressed: _isCompleting
-                      ? null
-                      : (_isLastPage ? _complete : _nextPage),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: theme.colorScheme.secondary,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: theme.colorScheme.secondary
-                        .withValues(alpha: 0.6),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: _isCompleting && _isLastPage
-                      ? const SizedBox.square(
-                          dimension: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(_isLastPage ? 'Commencer' : 'Suivant'),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

@@ -12,18 +12,16 @@ class DeviceRepository {
   Future<void> registerDevice({
     required String fcmToken,
     required String platform,
-    String? appVersion,
+    String appVersion = '1.0.0',
     String? churchId,
-    bool notificationsEnabled = true,
   }) async {
     final payload = <String, Object?>{
       'fcm_token': fcmToken,
       'platform': platform,
-      'church_id': churchId,
-      'notifications_enabled': notificationsEnabled,
+      'app_version': appVersion,
     };
-    if (appVersion != null) {
-      payload['app_version'] = appVersion;
+    if (churchId != null && churchId.isNotEmpty) {
+      payload['church_id'] = churchId;
     }
 
     final response = await _client.post(

@@ -29,7 +29,7 @@ class EventApiDataSource {
     return [
       for (var i = 0; i < data.length; i++)
         if (data[i] is Map<String, dynamic>)
-          _eventFromJson(
+          eventFromJson(
             data[i] as Map<String, dynamic>,
             fallback: fallbackEvents[i % fallbackEvents.length],
           ),
@@ -37,7 +37,7 @@ class EventApiDataSource {
   }
 }
 
-Event _eventFromJson(Map<String, dynamic> json, {required Event fallback}) {
+Event eventFromJson(Map<String, dynamic> json, {required Event fallback}) {
   final start = _read(json, ['start_at', 'date', 'event_date']);
   return Event(
     id: _read(json, ['slug', 'id']) ?? fallback.id,

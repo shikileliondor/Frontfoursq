@@ -13,48 +13,81 @@ class OnboardingSlide extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final compact = constraints.maxHeight < 620;
+        final compact = constraints.maxHeight < 560;
+        final imageHeight = (constraints.maxHeight * (compact ? 0.48 : 0.56))
+            .clamp(210.0, 440.0);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              flex: compact ? 5 : 6,
-              child: SizedBox(
-                width: double.infinity,
-                child: Image.asset(
-                  data.imagePath,
-                  fit: BoxFit.cover,
-                  alignment: Alignment.center,
-                ),
+            SizedBox(
+              height: imageHeight,
+              width: double.infinity,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(
+                    data.imagePath,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.center,
+                  ),
+                  const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0x730B1630),
+                          Color(0x220B1630),
+                          Colors.white,
+                        ],
+                        stops: [0, 0.62, 1],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             Expanded(
-              flex: compact ? 4 : 3,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+                padding: EdgeInsets.fromLTRB(24, compact ? 16 : 24, 24, 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
+                    _SlideIcon(icon: data.icon),
+                    SizedBox(height: compact ? 14 : 18),
+                    FractionallySizedBox(
+                      widthFactor: 0.18,
+                      child: Container(
+                        height: 3,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.secondary,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: compact ? 12 : 16),
                     Text(
                       data.title,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.headlineSmall?.copyWith(
                         color: theme.colorScheme.primary,
-                        fontSize: compact ? 25 : 30,
+                        fontSize: compact ? 24 : 30,
                         fontWeight: FontWeight.w900,
-                        height: 1.05,
+                        height: 1.08,
                         letterSpacing: 0,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: compact ? 10 : 12),
                     Text(
                       data.description,
                       style: const TextStyle(
-                        color: Color(0xFF566176),
+                        color: Color(0xFF5C667A),
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        height: 1.45,
+                        height: 1.42,
                         letterSpacing: 0,
                       ),
                     ),
@@ -65,6 +98,35 @@ class OnboardingSlide extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _SlideIcon extends StatelessWidget {
+  const _SlideIcon({required this.icon});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      width: 52,
+      height: 52,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(color: const Color(0xFFE8EAF0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 16,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Icon(icon, color: colorScheme.primary, size: 25),
     );
   }
 }

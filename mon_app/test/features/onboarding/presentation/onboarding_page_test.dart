@@ -16,7 +16,10 @@ void main() {
     await pumpOnboarding(tester, onCompleted: () async {});
 
     expect(find.byKey(const Key('onboarding-logo')), findsOneWidget);
-    expect(find.text('Bienvenue'), findsOneWidget);
+    expect(
+      find.text("Bienvenue chez Foursquare Côte d'Ivoire"),
+      findsOneWidget,
+    );
     expect(find.text('Passer'), findsOneWidget);
     expect(find.text('Suivant'), findsOneWidget);
     expect(find.text('Commencer'), findsNothing);

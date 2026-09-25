@@ -12,8 +12,8 @@ class DeviceRegistrationApiClient implements DeviceRegistrationClient {
     return _repository.registerDevice(
       fcmToken: registration.fcmToken,
       platform: registration.platform,
+      appVersion: registration.appVersion,
       churchId: registration.churchId,
-      notificationsEnabled: registration.notificationsEnabled,
     );
   }
 }

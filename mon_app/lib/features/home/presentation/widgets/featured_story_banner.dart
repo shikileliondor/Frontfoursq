@@ -6,9 +6,10 @@ import '../../../../core/constants/app_assets.dart';
 import '../../../news/domain/models/news_article.dart';
 
 class FeaturedStoryBanner extends StatefulWidget {
-  const FeaturedStoryBanner({this.articles = const [], super.key});
+  const FeaturedStoryBanner({this.articles = const [], this.onTap, super.key});
 
   final List<NewsArticle> articles;
+  final VoidCallback? onTap;
 
   @override
   State<FeaturedStoryBanner> createState() => _FeaturedStoryBannerState();
@@ -83,104 +84,125 @@ class _FeaturedStoryBannerState extends State<FeaturedStoryBanner> {
       builder: (context, constraints) {
         final height = (constraints.maxWidth / 2.05).clamp(142.0, 200.0);
 
-        return SizedBox(
-          width: double.infinity,
-          height: height,
-          child: ClipRRect(
+        return Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          child: InkWell(
+            onTap: widget.onTap,
             borderRadius: BorderRadius.circular(8),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                PageView.builder(
-                  controller: _pageController,
-                  itemCount: stories.length,
-                  onPageChanged: (page) => setState(() => _currentPage = page),
-                  itemBuilder: (context, index) {
-                    final story = stories[index];
-                    return Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        _StoryImage(
-                          image: story.image,
-                          imageUrl: story.imageUrl,
-                        ),
-                        const DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [Colors.transparent, Color(0xD9000000)],
+            child: SizedBox(
+              width: double.infinity,
+              height: height,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    PageView.builder(
+                      controller: _pageController,
+                      itemCount: stories.length,
+                      onPageChanged: (page) =>
+                          setState(() => _currentPage = page),
+                      itemBuilder: (context, index) {
+                        final story = stories[index];
+                        return Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            _StoryImage(
+                              image: story.image,
+                              imageUrl: story.imageUrl,
                             ),
-                          ),
-                        ),
-                        Positioned(
-                          left: 14,
-                          right: 14,
-                          bottom: 13,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'A LA UNE',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
+                            const DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Color(0xD9000000),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 3),
-                              Text(
-                                story.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w800,
-                                ),
+                            ),
+                            Positioned(
+                              left: 14,
+                              right: 14,
+                              bottom: 13,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'A LA UNE',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    story.title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    story.detail,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                story.detail,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                            ),
+                            const Positioned(
+                              right: 12,
+                              bottom: 12,
+                              child: Icon(
+                                Icons.chevron_right_rounded,
+                                color: Colors.white,
+                                size: 22,
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                Positioned(
-                  top: 12,
-                  right: 12,
-                  child: Semantics(
-                    label:
-                        'Actualite ${_currentPage + 1} sur ${stories.length}',
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: List.generate(stories.length, (index) {
-                        final selected = index == _currentPage;
-                        return Container(
-                          width: selected ? 16 : 6,
-                          height: 6,
-                          margin: const EdgeInsets.only(left: 4),
-                          decoration: BoxDecoration(
-                            color: selected ? Colors.white : Colors.white54,
-                            borderRadius: BorderRadius.circular(3),
-                          ),
+                            ),
+                          ],
                         );
-                      }),
+                      },
                     ),
-                  ),
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: Semantics(
+                        label:
+                            'Actualite ${_currentPage + 1} sur ${stories.length}',
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(stories.length, (index) {
+                            final selected = index == _currentPage;
+                            return Container(
+                              width: selected ? 16 : 6,
+                              height: 6,
+                              margin: const EdgeInsets.only(left: 4),
+                              decoration: BoxDecoration(
+                                color: selected ? Colors.white : Colors.white54,
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         );

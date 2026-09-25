@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ChurchDiscoveryBanner extends StatelessWidget {
-  const ChurchDiscoveryBanner({super.key});
+  const ChurchDiscoveryBanner({this.onTap, super.key});
+
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +12,7 @@ class ChurchDiscoveryBanner extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
-        onTap: () {},
+        onTap: onTap,
         child: const Padding(
           padding: EdgeInsets.all(14),
           child: Row(

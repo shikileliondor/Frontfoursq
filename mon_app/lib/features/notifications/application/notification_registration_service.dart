@@ -5,15 +5,15 @@ class NotificationRegistrationService {
     required this.messaging,
     required this.devices,
     required this.platform,
+    this.appVersion = '1.0.0',
     this.churchId,
-    this.notificationsEnabled = true,
   });
 
   final PushMessagingClient messaging;
   final DeviceRegistrationClient devices;
   final String platform;
+  final String appVersion;
   final String? churchId;
-  final bool notificationsEnabled;
 
   StreamSubscription<String>? _tokenRefreshSubscription;
 
@@ -45,8 +45,8 @@ class NotificationRegistrationService {
         DeviceRegistration(
           fcmToken: token,
           platform: platform,
+          appVersion: appVersion,
           churchId: churchId,
-          notificationsEnabled: notificationsEnabled,
         ),
       );
     } catch (_) {
@@ -71,14 +71,14 @@ class DeviceRegistration {
   const DeviceRegistration({
     required this.fcmToken,
     required this.platform,
+    required this.appVersion,
     this.churchId,
-    this.notificationsEnabled = true,
   });
 
   final String fcmToken;
   final String platform;
+  final String appVersion;
   final String? churchId;
-  final bool notificationsEnabled;
 
   @override
   bool operator ==(Object other) {
@@ -86,11 +86,10 @@ class DeviceRegistration {
         other is DeviceRegistration &&
             other.fcmToken == fcmToken &&
             other.platform == platform &&
-            other.churchId == churchId &&
-            other.notificationsEnabled == notificationsEnabled;
+            other.appVersion == appVersion &&
+            other.churchId == churchId;
   }
 
   @override
-  int get hashCode =>
-      Object.hash(fcmToken, platform, churchId, notificationsEnabled);
+  int get hashCode => Object.hash(fcmToken, platform, appVersion, churchId);
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -17,9 +18,9 @@ import 'features/onboarding/presentation/providers/onboarding_providers.dart';
 import 'firebase_options.dart';
 
 const _notificationChannel = AndroidNotificationChannel(
-  'foursquare_notifications',
-  'Notifications Foursquare',
-  description: 'Notifications de Foursquare CI',
+  'orientemoi_alerts',
+  'Alertes Oriente Moi',
+  description: 'Notifications importantes',
   importance: Importance.high,
 );
 
@@ -37,6 +38,10 @@ Future<void> main() async {
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   FirebaseMessaging.onMessage.listen(handleForegroundMessage);
   FirebaseMessaging.onMessageOpenedApp.listen(handleNotificationOpenedApp);
+  final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+  if (initialMessage != null) {
+    handleNotificationOpenedApp(initialMessage);
+  }
 
   final preferences = await SharedPreferences.getInstance();
   if (_canRegisterPushNotifications) {
@@ -55,7 +60,9 @@ void handleForegroundMessage(RemoteMessage message) {
   unawaited(_showForegroundNotification(message));
 }
 
-void handleNotificationOpenedApp(RemoteMessage message) {}
+void handleNotificationOpenedApp(RemoteMessage message) {
+  _onNotificationTap(message.data, messageId: message.messageId);
+}
 
 Future<void> _initializeLocalNotifications() async {
   const initializationSettings = InitializationSettings(
@@ -63,7 +70,12 @@ Future<void> _initializeLocalNotifications() async {
     iOS: DarwinInitializationSettings(),
   );
 
-  await _localNotifications.initialize(settings: initializationSettings);
+  await _localNotifications.initialize(
+    settings: initializationSettings,
+    onDidReceiveNotificationResponse: (response) {
+      _handleLocalNotificationTap(response.payload);
+    },
+  );
   await _localNotifications
       .resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin
@@ -100,8 +112,60 @@ Future<void> _showForegroundNotification(RemoteMessage message) async {
         presentSound: true,
       ),
     ),
-    payload: message.data['notification_id'],
+    payload: jsonEncode(message.data),
   );
+}
+
+void _handleLocalNotificationTap(String? payload) {
+  if (payload == null || payload.isEmpty) {
+    _onNotificationTap(const <String, dynamic>{});
+    return;
+  }
+
+  try {
+    final decoded = jsonDecode(payload);
+    if (decoded is Map<String, dynamic>) {
+      _onNotificationTap(decoded);
+      return;
+    }
+  } catch (_) {
+    // A malformed local payload should only lose navigation context.
+  }
+
+  _onNotificationTap(<String, dynamic>{'payload': payload});
+}
+
+void _onNotificationTap(Map<String, dynamic> data, {String? messageId}) {
+  debugPrint(
+    '[FCM] Notification ouverte: ${messageId ?? data['notification_id'] ?? 'locale'}',
+  );
+  debugPrint('[FCM] Donnees notification: $data');
+
+  final type = data['type']?.toString().toLowerCase();
+  switch (type) {
+    case 'alert':
+    case 'general':
+      debugPrint('[FCM] Navigation cible: accueil');
+      break;
+    case 'news':
+      debugPrint(
+        '[FCM] Navigation cible: actualite ${data['news_id'] ?? data['id'] ?? ''}',
+      );
+      break;
+    case 'event':
+      debugPrint(
+        '[FCM] Navigation cible: evenement ${data['event_id'] ?? data['id'] ?? ''}',
+      );
+      break;
+    case 'school':
+      debugPrint('[FCM] Navigation cible: ecole ${data['id'] ?? ''}');
+      break;
+    case 'internship':
+      debugPrint('[FCM] Navigation cible: stage ${data['id'] ?? ''}');
+      break;
+    default:
+      debugPrint('[FCM] Navigation cible: accueil');
+  }
 }
 
 Future<void> _startNotificationRegistration() async {

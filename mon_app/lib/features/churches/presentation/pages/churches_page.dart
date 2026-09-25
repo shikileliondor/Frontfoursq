@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/presentation/refreshable_scroll_view.dart';
 import '../../data/church_repository.dart';
 import '../../domain/models/church.dart';
 import '../widgets/church_card.dart';
 import 'church_detail_page.dart';
 
 class ChurchesPage extends StatefulWidget {
-  const ChurchesPage({super.key});
+  const ChurchesPage({super.key, this.repository});
+
+  /// Injectable pour les tests : sans cela, la page ne peut etre
+  /// exercee qu'au travers d'un vrai appel reseau.
+  final ChurchRepository? repository;
 
   @override
   State<ChurchesPage> createState() => _ChurchesPageState();
 }
 
 class _ChurchesPageState extends State<ChurchesPage> {
-  final ChurchRepository _repository = ChurchRepository();
+  late final ChurchRepository _repository =
+      widget.repository ?? ChurchRepository();
   String _query = '';
   Church? _selectedChurch;
   late Future<List<Church>> _churchesFuture = _repository.getChurches();
@@ -23,6 +29,15 @@ class _ChurchesPageState extends State<ChurchesPage> {
       _query = value;
       _churchesFuture = _repository.getChurches(search: _query);
     });
+  }
+
+  /// Conserve la recherche en cours : tirer ne doit pas vider le champ.
+  Future<void> _refresh() async {
+    final future = _repository.getChurches(search: _query);
+    setState(() {
+      _churchesFuture = future;
+    });
+    await future;
   }
 
   @override
@@ -35,7 +50,8 @@ class _ChurchesPageState extends State<ChurchesPage> {
       );
     }
 
-    return CustomScrollView(
+    return RefreshableScrollView(
+      onRefresh: _refresh,
       slivers: [
         SliverToBoxAdapter(
           child: Padding(
